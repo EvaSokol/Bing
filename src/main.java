@@ -40,33 +40,32 @@ public class main {
 		
 		if (!(fileExists())) write(driver, locale, items);
 		else
-		read(driver);
+		read(driver, items);
 		write(driver, locale, items);
 		
 		driver.close();
 	}
 		
 	static List<WebElement> getItems(WebDriver driver) {
-		
-		
+			
 		return driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
 	} 
 	
-	static String[] getStringItems(WebDriver driver) {
-		List<WebElement> items = driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
-		ConcurrentSkipListSet<String> set = new ConcurrentSkipListSet<String>(); 
-		for (int i=0; i<items.size(); i++) {
-			set.add(items.get(i).getAttribute("id"));
-		}
-		
-		String[] arr = new String[set.size()];
-		for (int j=0; j<arr.length; j++) {
-			arr[j]=set.pollFirst().toString();
-	//		System.out.println("arr[]j= " + arr[j]);
-		}
-		
-		return arr;
-	}
+//	static String[] getStringItems(WebDriver driver) {
+//		List<WebElement> items = driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
+//		ConcurrentSkipListSet<String> set = new ConcurrentSkipListSet<String>(); 
+//		for (int i=0; i<items.size(); i++) {
+//			set.add(items.get(i).getAttribute("id"));
+//		}
+//		
+//		String[] arr = new String[set.size()];
+//		
+//		for (int j=0; j<arr.length; j++) {
+//			arr[j]=set.pollFirst().toString();
+//		}
+//		
+//		return arr;
+//	}
 	
 	static void write(WebDriver driver, String locale, List<WebElement> items) {
 		
@@ -84,7 +83,7 @@ public class main {
 				Element page = doc.createElement("HomePage");
 				rootElement.appendChild(page);
 				
-				System.out.println("Current locale is: " + locale);
+				System.out.println("Write to file. Current locale is: " + locale);
 										
 				for (int y=0; y<items.size(); y++) {
 										
@@ -111,7 +110,7 @@ public class main {
 			
 	}
 		
-	static void read(WebDriver driver) {
+	static void read(WebDriver driver, List<WebElement> items) {
 		try {
 			 
 			File fXmlFile = new File("languages.xml");
@@ -121,7 +120,7 @@ public class main {
 		 			
 			doc.getDocumentElement().normalize();
 		 
-			System.out.println("Locale in file: " + doc.getDocumentElement().getNodeName());
+			System.out.println("Read File. Locale in file: " + doc.getDocumentElement().getNodeName());
 		 
 			NodeList nList = doc.getElementsByTagName("HomePage");
 		 			 
@@ -129,28 +128,17 @@ public class main {
 		 
 			Element eElement = (Element) nNode;
 			NamedNodeMap nnm = eElement.getAttributes();
-			String tempNode;
-			String[] ttt = getStringItems(driver);
-			
+					
 			for (int n=0; n<nnm.getLength(); n++)			{
-		//		tempNode = nnm.item(n).getNodeName();
-				tempNode = ttt[n];
-				System.out.println(tempNode + ": " + eElement.getAttribute(tempNode).toString());
+			
+				System.out.println(items.get(n).getAttribute("id") + ": " + eElement.getAttribute(items.get(n).getAttribute("id").toString()));
 			}
-		 										
-//			System.out.println("scpt0 : " + eElement.getAttribute("scpt0").toString());
-//			System.out.println("scpt1 : " + eElement.getAttribute("scpt1").toString());
-//			System.out.println("scpt2 : " + eElement.getAttribute("scpt2").toString());
-//			System.out.println("scpt3 : " + eElement.getAttribute("scpt3").toString());
-//			System.out.println("scpt4 : " + eElement.getAttribute("scpt4").toString());
-//			System.out.println("msn : " + eElement.getAttribute("msn").toString());
-//			System.out.println("outlook : " + eElement.getAttribute("outlook").toString());
-//			System.out.println("----------------------------");
+
+			System.out.println("----------------------------");
 			
 		    } catch (Exception e) {
 			e.printStackTrace();
 		    }
-		
 		
 	}
 
