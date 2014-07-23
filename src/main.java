@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,6 +18,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -38,19 +40,36 @@ public class main {
 		
 		if (!(fileExists())) write(driver, locale, items);
 		else
-		read();
+		read(driver);
 		write(driver, locale, items);
 		
 		driver.close();
 	}
 		
 	static List<WebElement> getItems(WebDriver driver) {
+		
+		
 		return driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
 	} 
 	
-	static void write(WebDriver driver, String locale, List<WebElement> items) {
+	static String[] getStringItems(WebDriver driver) {
+		List<WebElement> items = driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
+		ConcurrentSkipListSet<String> set = new ConcurrentSkipListSet<String>(); 
+		for (int i=0; i<items.size(); i++) {
+			set.add(items.get(i).getAttribute("id"));
+		}
+		
+		String[] arr = new String[set.size()];
+		for (int j=0; j<arr.length; j++) {
+			arr[j]=set.pollFirst().toString();
+	//		System.out.println("arr[]j= " + arr[j]);
+		}
+		
+		return arr;
+	}
 	
-	//	List<WebElement> items = getItems(driver);
+	static void write(WebDriver driver, String locale, List<WebElement> items) {
+		
 		List<WebElement> links = driver.findElements(By.xpath(".//*[@id='sc_hdu']//a"));
 				
 			try {
@@ -92,7 +111,7 @@ public class main {
 			
 	}
 		
-	static void read() {
+	static void read(WebDriver driver) {
 		try {
 			 
 			File fXmlFile = new File("languages.xml");
@@ -109,15 +128,24 @@ public class main {
 			Node nNode = nList.item(0);
 		 
 			Element eElement = (Element) nNode;
+			NamedNodeMap nnm = eElement.getAttributes();
+			String tempNode;
+			String[] ttt = getStringItems(driver);
+			
+			for (int n=0; n<nnm.getLength(); n++)			{
+		//		tempNode = nnm.item(n).getNodeName();
+				tempNode = ttt[n];
+				System.out.println(tempNode + ": " + eElement.getAttribute(tempNode).toString());
+			}
 		 										
-			System.out.println("scpt0 : " + eElement.getAttribute("scpt0").toString());
-			System.out.println("scpt1 : " + eElement.getAttribute("scpt1").toString());
-			System.out.println("scpt2 : " + eElement.getAttribute("scpt2").toString());
-			System.out.println("scpt3 : " + eElement.getAttribute("scpt3").toString());
-			System.out.println("scpt4 : " + eElement.getAttribute("scpt4").toString());
-			System.out.println("msn : " + eElement.getAttribute("msn").toString());
-			System.out.println("outlook : " + eElement.getAttribute("outlook").toString());
-			System.out.println("----------------------------");
+//			System.out.println("scpt0 : " + eElement.getAttribute("scpt0").toString());
+//			System.out.println("scpt1 : " + eElement.getAttribute("scpt1").toString());
+//			System.out.println("scpt2 : " + eElement.getAttribute("scpt2").toString());
+//			System.out.println("scpt3 : " + eElement.getAttribute("scpt3").toString());
+//			System.out.println("scpt4 : " + eElement.getAttribute("scpt4").toString());
+//			System.out.println("msn : " + eElement.getAttribute("msn").toString());
+//			System.out.println("outlook : " + eElement.getAttribute("outlook").toString());
+//			System.out.println("----------------------------");
 			
 		    } catch (Exception e) {
 			e.printStackTrace();
