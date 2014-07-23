@@ -33,15 +33,18 @@ public class main {
 		String locale;
 				 			
 		locale = changeLocale();
+//		locale = "ru";
 		profile.setPreference("intl.accept_languages", locale);
 		driver = new FirefoxDriver(profile);
 		driver.get(baseUrl);
 		List<WebElement> items = getItems(driver);
 		
-		if (!(fileExists())) write(driver, locale, items);
-		else
-		read(driver, items);
-		write(driver, locale, items);
+//		if (!(fileExists())) write(driver, locale, items);
+//		else
+//		read(driver, items);
+//		write(driver, locale, items);
+		
+		compare(driver, locale, items);
 		
 		driver.close();
 	}
@@ -51,25 +54,10 @@ public class main {
 		return driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
 	} 
 	
-//	static String[] getStringItems(WebDriver driver) {
-//		List<WebElement> items = driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
-//		ConcurrentSkipListSet<String> set = new ConcurrentSkipListSet<String>(); 
-//		for (int i=0; i<items.size(); i++) {
-//			set.add(items.get(i).getAttribute("id"));
-//		}
-//		
-//		String[] arr = new String[set.size()];
-//		
-//		for (int j=0; j<arr.length; j++) {
-//			arr[j]=set.pollFirst().toString();
-//		}
-//		
-//		return arr;
-//	}
-	
-	static void write(WebDriver driver, String locale, List<WebElement> items) {
+	static String[] write(WebDriver driver, String locale, List<WebElement> items) {
 		
 		List<WebElement> links = driver.findElements(By.xpath(".//*[@id='sc_hdu']//a"));
+		String[] writeValues = new String[items.size()];
 				
 			try {
 				
@@ -88,8 +76,9 @@ public class main {
 				for (int y=0; y<items.size(); y++) {
 										
 					System.out.println(items.get(y).getAttribute("id") + " " + links.get(y).getAttribute("text"));
-					
+					writeValues[y] = links.get(y).getAttribute("text");
 					page.setAttribute(items.get(y).getAttribute("id"), links.get(y).getAttribute("text"));
+					
 				}
 			
 					TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -107,10 +96,14 @@ public class main {
 			  } catch (TransformerException tfe) {
 				tfe.printStackTrace();
 			  }
+		return writeValues;	
 			
 	}
 		
-	static void read(WebDriver driver, List<WebElement> items) {
+	static String[] read(WebDriver driver, List<WebElement> items) {
+		
+		String[] readValues = new String[items.size()];
+		
 		try {
 			 
 			File fXmlFile = new File("languages.xml");
@@ -128,17 +121,20 @@ public class main {
 		 
 			Element eElement = (Element) nNode;
 			NamedNodeMap nnm = eElement.getAttributes();
-					
+									
 			for (int n=0; n<nnm.getLength(); n++)			{
 			
 				System.out.println(items.get(n).getAttribute("id") + ": " + eElement.getAttribute(items.get(n).getAttribute("id").toString()));
+				readValues[n] = eElement.getAttribute(items.get(n).getAttribute("id").toString());
 			}
 
 			System.out.println("----------------------------");
-			
+								
 		    } catch (Exception e) {
 			e.printStackTrace();
 		    }
+		return readValues;
+		
 		
 	}
 
@@ -171,6 +167,26 @@ public class main {
 			case 9: return "fy";
 			default: return "en";
 		}
+	}
+	
+	static boolean compare(WebDriver driver, String locale, List<WebElement> items) {
+		
+		String[] read = read(driver, items);
+		String[] write = write(driver, locale, items);
+		
+		
+		for (int z=0; z<read.length; z++) {
+			System.out.println("read: " + read[z] + " write: " + write[z]);
+			
+			if (read[z].compareTo(write[z]) != 0) {
+				System.out.println("Locale was changed");
+				return true;
+			}
+				
+		}
+		
+		System.out.println("Locale hasn't been changed");
+		return false;
 	}
 }
 
