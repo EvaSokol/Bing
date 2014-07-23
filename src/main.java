@@ -34,17 +34,23 @@ public class main {
 		profile.setPreference("intl.accept_languages", locale);
 		driver = new FirefoxDriver(profile);
 		driver.get(baseUrl);
+		List<WebElement> items = getItems(driver);
 		
-		if (!(fileExists())) write(driver, locale);
+		if (!(fileExists())) write(driver, locale, items);
 		else
 		read();
-		write(driver, locale);
+		write(driver, locale, items);
 		
 		driver.close();
 	}
 		
-	static void write(WebDriver driver, String locale) {
-		List<WebElement> items = driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
+	static List<WebElement> getItems(WebDriver driver) {
+		return driver.findElements(By.xpath(".//*[@id='sc_hdu']//li"));
+	} 
+	
+	static void write(WebDriver driver, String locale, List<WebElement> items) {
+	
+	//	List<WebElement> items = getItems(driver);
 		List<WebElement> links = driver.findElements(By.xpath(".//*[@id='sc_hdu']//a"));
 				
 			try {
@@ -59,7 +65,7 @@ public class main {
 				Element page = doc.createElement("HomePage");
 				rootElement.appendChild(page);
 				
-				System.out.println("locale is " + locale);
+				System.out.println("Current locale is: " + locale);
 										
 				for (int y=0; y<items.size(); y++) {
 										
@@ -96,7 +102,7 @@ public class main {
 		 			
 			doc.getDocumentElement().normalize();
 		 
-			System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+			System.out.println("Locale in file: " + doc.getDocumentElement().getNodeName());
 		 
 			NodeList nList = doc.getElementsByTagName("HomePage");
 		 			 
@@ -111,7 +117,7 @@ public class main {
 			System.out.println("scpt4 : " + eElement.getAttribute("scpt4").toString());
 			System.out.println("msn : " + eElement.getAttribute("msn").toString());
 			System.out.println("outlook : " + eElement.getAttribute("outlook").toString());
-				
+			System.out.println("----------------------------");
 			
 		    } catch (Exception e) {
 			e.printStackTrace();
