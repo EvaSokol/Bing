@@ -40,10 +40,15 @@ public class main {
 		driver.get(baseUrl);
 		List<WebElement> items = getItems(driver);
 		
-//		if (!(fileExists())) write(driver, locale, items);
-//		else
-//		read(driver, items);
-//		write(driver, locale, items);
+		if (!(fileExists())) {
+			write(driver, locale, items);
+			driver.close();
+			locale = changeLocale();
+			profile.setPreference("intl.accept_languages", locale);
+			driver = new FirefoxDriver(profile);
+			driver.get(baseUrl);
+			items = getItems(driver);
+		}
 		
 		compare(driver, locale, items);
 		
