@@ -94,12 +94,16 @@ public class second {
 					attribute = link.getAttribute("h");
 					System.out.println(attribute);
 					int ind = attribute.indexOf('.');
-					System.out.println(" . has index "+ ind);
-					attribute.subSequence(0, 11);
+//					attribute = attribute.replace(',', '*');
+//					attribute = attribute.replace('=', ' ');
+//					attribute = attribute.replace('.', '*');
+					attribute = attribute.substring(8, 12);
 					System.out.println(attribute);
 					
 					System.out.println(attribute + " * " + link.getText());
-					page.setAttribute(attribute, link.getText());
+				//	page.setAttribute(attribute, link.getText());
+				//	page.setAttribute("5009", "zzz");
+					
 				}
 				
 				
