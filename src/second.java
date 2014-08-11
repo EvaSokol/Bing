@@ -11,6 +11,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.By.ByXPath;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -92,21 +93,14 @@ public class second {
 				if (link.isDisplayed() == true & !(link.getText().isEmpty()) ) {
 					
 					attribute = link.getAttribute("h");
-					System.out.println(attribute);
-					int ind = attribute.indexOf('.');
-//					attribute = attribute.replace(',', '*');
-//					attribute = attribute.replace('=', ' ');
-//					attribute = attribute.replace('.', '*');
-					attribute = attribute.substring(8, 12);
-					System.out.println(attribute);
-					
+					attribute = attribute.replace(',', '.');
+					attribute = attribute.replace('=', '.');
+							
 					System.out.println(attribute + " * " + link.getText());
-				//	page.setAttribute(attribute, link.getText());
-				//	page.setAttribute("5009", "zzz");
-					
+					page.setAttribute(attribute, link.getText());
+								
 				}
-				
-				
+							
 			}
 		
 				TransformerFactory transformerFactory = TransformerFactory.newInstance();
