@@ -36,26 +36,30 @@ public class second {
 		startBrowser(locale);
 		getDataToList(EnglishElements);
 		driver.close();
-		locale = changeLocale();
-		startBrowser(locale);
-		getDataToList(LocalizedElements);
-		driver.close();
 		
-		compairing();
+		for (int i=0; i<10; i++) {
+			locale = changeLocale(i);
+			startBrowser(locale);
+			getDataToList(LocalizedElements);
+			driver.close();
+			compairing();
+		}
 		
 	}
 	
 	private static void compairing() {
-						
+		System.out.println("----- Locale is " + locale + "-----");
+		
 		AbstractMap<String, String> locList = new TreeMap<String, String>();
 		for (trans t : LocalizedElements) {
 			locList.put(t.getId(), t.getData());
 		}
 		
 		for (trans element: EnglishElements) {
-			
-			System.out.println("English: " + element.getData());
-			System.out.println("Localized: " + locList.get(element.getId()));
+						
+			if (element.getData().compareTo(locList.get(element.getId()).toString()) == 0)
+				System.out.print("!!! ");
+			System.out.println(locList.get(element.getId()));
 		}
 		
 	}
@@ -67,33 +71,31 @@ public class second {
 		driver = new FirefoxDriver(profile);
 		driver.get(baseUrl);
 	}
-	
-	static String changeLocale() {
 		
-		int i = (int)(Math.random()*10);
-		switch (i) {
-			case 0: return "en";
-			case 1: return "fr";
-			case 2: return "de";
-			case 3: return "es";
-			case 4: return "lt";
-			case 5: return "uk";
-			case 6: return "ja";
-			case 7: return "cs";
-			case 8: return "ru";
-			case 9: return "fy";
-			default: return "en";
+	static String changeLocale(int i) {
+					
+			switch (i) {
+				case 0: return "nl";
+				case 1: return "fr";
+				case 2: return "de";
+				case 3: return "es";
+				case 4: return "lt";
+				case 5: return "uk";
+				case 6: return "ja";
+				case 7: return "cs";
+				case 8: return "ru";
+				case 9: return "fy";
+				default: return "ru";
+			}
 		}
-	}
 	
 	static void getDataToList(List<trans> Elements) {
-		System.out.println("Locale is " + locale);
+		
 		List<WebElement> baseList = driver.findElements(By.xpath(".//*/a"));
 				
 		for (WebElement link : baseList) {
 			if (link.isDisplayed() == true & !(link.getText().isEmpty()) ) {
-				System.out.println(link.getAttribute("h") + " : " + link.getText());
-				Elements.add(new trans(link.getAttribute("h"), link.getText()));
+					Elements.add(new trans(link.getAttribute("h"), link.getText()));
 				}
 		}
 	}
