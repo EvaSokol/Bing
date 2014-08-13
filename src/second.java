@@ -1,26 +1,15 @@
-import java.io.File;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.By.ByXPath;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 
 public class second {
@@ -31,26 +20,33 @@ public class second {
 	static List<trans> EnglishElements = new ArrayList<trans>();
 	static List<trans> LocalizedElements = new ArrayList<trans>();
 	
-	public static void main(String[] args) {
+	
+	public static void main(String[] args) throws IOException {
 		
 		startBrowser(locale);
 		getDataToList(EnglishElements);
 		driver.close();
 		
-		for (int i=0; i<10; i++) {
-			locale = changeLocale(i);
-			startBrowser(locale);
-			getDataToList(LocalizedElements);
-			driver.close();
-			compairing();
-		}
+		try (
+				FileOutputStream OutPutFile = new FileOutputStream("bing.txt");	
+				DataOutputStream of = new DataOutputStream(OutPutFile);	){
 		
+					for (int i=0; i<10; i++) {
+						locale = changeLocale(i);
+						startBrowser(locale);
+						getDataToList(LocalizedElements);
+						driver.close();
+						compairing(of);
+					}
+		}
 	}
 	
-	private static void compairing() {
+	private static void compairing(DataOutputStream of) throws IOException {
 		System.out.println("----- Locale is " + locale + "-----");
+		of.writeChars("----- Locale is " + locale + "-----");	
 		
 		AbstractMap<String, String> locList = new TreeMap<String, String>();
+		
 		for (trans t : LocalizedElements) {
 			locList.put(t.getId(), t.getData());
 		}
@@ -58,8 +54,15 @@ public class second {
 		for (trans element: EnglishElements) {
 						
 			if (element.getData().compareTo(locList.get(element.getId()).toString()) == 0)
+				{
 				System.out.print("!!! ");
+				of.writeChars("!!! ");
+				}
+			
 			System.out.println(locList.get(element.getId()));
+			of.writeUTF(locList.get(element.getId()));
+			of.writeUTF("\r\n");
+			
 		}
 		
 	}
@@ -99,56 +102,7 @@ public class second {
 				}
 		}
 	}
-	
-	static void writeToXml() {
-//		try {
-//			
-//			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-//			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-//	 		Document doc = docBuilder.newDocument();
-//			
-//			Element rootElement = doc.createElement(locale);
-//			doc.appendChild(rootElement);
-//						
-//			Element page = doc.createElement("HomePage");
-//			rootElement.appendChild(page);
-//			
-//			System.out.println("Write to file. Current locale is: " + locale);
-//			String attribute;						
-//			for (WebElement link : links) {
-//				if (link.isDisplayed() == true & !(link.getText().isEmpty()) ) {
-//					
-//					attribute = link.getAttribute("h");
-//					attribute = attribute.replace(',', '.');
-//					attribute = attribute.replace('=', '.');
-//							
-//					System.out.println(attribute + " * " + link.getText());
-//					page.setAttribute(attribute, link.getText());
-//								
-//				}
-//							
-//			}
-//		
-//				TransformerFactory transformerFactory = TransformerFactory.newInstance();
-//				Transformer transformer = transformerFactory.newTransformer();
-//				DOMSource source = new DOMSource(doc);
-//				StreamResult result = new StreamResult(new File("languages1.xml"));
-//		 						 
-//				transformer.transform(source, result);
-//		 
-//				System.out.println("File saved!");
-//				System.out.println("----------------------------");
-//		
-//		} catch (ParserConfigurationException pce) {
-//			pce.printStackTrace();
-//		  } catch (TransformerException tfe) {
-//			tfe.printStackTrace();
-//		  }
-	}
 
-	
-	
-	
 }
 
 class trans {
