@@ -28,43 +28,43 @@ import org.w3c.dom.Element;
 public class second {
 
 	static WebDriver driver;
-	static String locale = "en";
-	static String baseUrl = "http://www.bing.com/";
+	static String Locale = "en";
+	static String BaseUrl = "http://www.bing.com/";
 	static List<trans> EnglishElements = new ArrayList<trans>();	//list of English elements for compare with
 	static List<trans> LocalizedElements = new ArrayList<trans>();	//list for temporary keeping current locale's elements 
-	static Document doc;
-	static Element rootElement;
+	static Document Doc;
+	static Element RootElement;
 	
 	
 	public static void main(String[] args) throws IOException {
 		
-		startBrowser(locale); //start with English locale and create base for comparing
+		startBrowser(Locale); //start with English locale and create base for comparing
 		getDataToList(EnglishElements); //filling list of English elements
 		driver.close();
 		
 		try (
-				FileOutputStream OutPutFile = new FileOutputStream("bing.txt");	//file for log
+				FileOutputStream OutPutFile = new FileOutputStream("bing.txt");	//file for log in txt
 				DataOutputStream of = new DataOutputStream(OutPutFile);){
 			
-			try {	DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			try {	DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();	//file for xml
 					DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-			 		doc = docBuilder.newDocument();
+			 		Doc = docBuilder.newDocument();
 			 		
-			 		rootElement = doc.createElement("HomePage");
-					doc.appendChild(rootElement);
+			 		RootElement = Doc.createElement("HomePage");
+					Doc.appendChild(RootElement);
 				
 						for (int i=0; i<10; i++) {	//select different locales and check translation on each of them
-							locale = changeLocale(i);
-							startBrowser(locale);
+							Locale = changeLocale(i);
+							startBrowser(Locale);
 							getDataToList(LocalizedElements);
 							driver.close();
-							compairing(of);	//out the result to console and log file 
-							writeToXml();
+							analizeTranslation(of);	//out the result to console and log file 
+							makeXmlData();
 						}
 				
-						TransformerFactory transformerFactory = TransformerFactory.newInstance();
+						TransformerFactory transformerFactory = TransformerFactory.newInstance();	//writing to languages2.xml data for all languages
 						Transformer transformer = transformerFactory.newTransformer();
-						DOMSource source = new DOMSource(doc);
+						DOMSource source = new DOMSource(Doc);
 						StreamResult result = new StreamResult(new File("languages2.xml"));
 				 						 
 						transformer.transform(source, result);
@@ -78,9 +78,9 @@ public class second {
 		}
 	}
 	
-	private static void compairing(DataOutputStream of) throws IOException {	// if localized string is equal to English it marked with "!!!"
-		System.out.println("----- Locale is " + locale + "-----");
-		of.writeChars("----- Locale is " + locale + "-----");
+	private static void analizeTranslation(DataOutputStream of) throws IOException {	// if localized string is equal to English it marked with "!!!"
+		System.out.println("----- Locale is " + Locale + "-----");
+		of.writeChars("----- Locale is " + Locale + "-----");
 		of.writeUTF("\r\n");
 		
 		AbstractMap<String, String> locList = new TreeMap<String, String>();	// This map for getting data according to English data list 
@@ -110,7 +110,7 @@ public class second {
 		FirefoxProfile profile = new FirefoxProfile();
 		profile.setPreference("intl.accept_languages", locale);
 		driver = new FirefoxDriver(profile);
-		driver.get(baseUrl);
+		driver.get(BaseUrl);
 	}
 		
 	static String changeLocale(int i) {	//just Enum for list of available locale
@@ -142,10 +142,10 @@ public class second {
 		}
 	}
 
-	static void writeToXml() {
+	static void makeXmlData() {	//add data to doc for xml
 								
-					Element page = doc.createElement(locale);
-					rootElement.appendChild(page);
+					Element page = Doc.createElement(Locale);
+					RootElement.appendChild(page);
 					
 					String attribute;
 											
