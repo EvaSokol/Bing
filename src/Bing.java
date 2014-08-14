@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 
-public class second {
+public class Bing {
 
 	static WebDriver driver;
 	static String Locale = "en";
