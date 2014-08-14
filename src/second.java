@@ -1,15 +1,28 @@
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 
 public class second {
@@ -19,6 +32,8 @@ public class second {
 	static String baseUrl = "http://www.bing.com/";
 	static List<trans> EnglishElements = new ArrayList<trans>();	//list of English elements for compare with
 	static List<trans> LocalizedElements = new ArrayList<trans>();	//list for temporary keeping current locale's elements 
+	static Document doc;
+	static Element rootElement;
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -29,15 +44,37 @@ public class second {
 		
 		try (
 				FileOutputStream OutPutFile = new FileOutputStream("bing.txt");	//file for log
-				DataOutputStream of = new DataOutputStream(OutPutFile);	){
-		
-					for (int i=0; i<10; i++) {	//select different locales and check translation on each of them
-						locale = changeLocale(i);
-						startBrowser(locale);
-						getDataToList(LocalizedElements);
-						driver.close();
-						compairing(of);	//out the result to console and log file 
-					}
+				DataOutputStream of = new DataOutputStream(OutPutFile);){
+			
+			try {	DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+					DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			 		doc = docBuilder.newDocument();
+			 		
+			 		rootElement = doc.createElement("HomePage");
+					doc.appendChild(rootElement);
+				
+						for (int i=0; i<10; i++) {	//select different locales and check translation on each of them
+							locale = changeLocale(i);
+							startBrowser(locale);
+							getDataToList(LocalizedElements);
+							driver.close();
+							compairing(of);	//out the result to console and log file 
+							writeToXml();
+						}
+				
+						TransformerFactory transformerFactory = TransformerFactory.newInstance();
+						Transformer transformer = transformerFactory.newTransformer();
+						DOMSource source = new DOMSource(doc);
+						StreamResult result = new StreamResult(new File("languages2.xml"));
+				 						 
+						transformer.transform(source, result);
+						
+			} catch (ParserConfigurationException pce) {
+				pce.printStackTrace();
+			  } catch (TransformerException tfe) {
+				  tfe.printStackTrace();
+			}
+					
 		}
 	}
 	
@@ -105,6 +142,24 @@ public class second {
 		}
 	}
 
+	static void writeToXml() {
+								
+					Element page = doc.createElement(locale);
+					rootElement.appendChild(page);
+					
+					String attribute;
+											
+					for (trans y: LocalizedElements) {
+						
+						attribute = y.getId();
+						attribute = attribute.replace(',', '.');
+						attribute = attribute.replace('=', '.');
+						
+						page.setAttribute(attribute, y.getData());
+						
+					}
+				
+		}
 }
 
 class trans {	//support class to keep the connection between id and data
