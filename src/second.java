@@ -17,57 +17,58 @@ public class second {
 	static WebDriver driver;
 	static String locale = "en";
 	static String baseUrl = "http://www.bing.com/";
-	static List<trans> EnglishElements = new ArrayList<trans>();
-	static List<trans> LocalizedElements = new ArrayList<trans>();
+	static List<trans> EnglishElements = new ArrayList<trans>();	//list of English elements for compare with
+	static List<trans> LocalizedElements = new ArrayList<trans>();	//list for temporary keeping current locale's elements 
 	
 	
 	public static void main(String[] args) throws IOException {
 		
-		startBrowser(locale);
-		getDataToList(EnglishElements);
+		startBrowser(locale); //start with English locale and create base for comparing
+		getDataToList(EnglishElements); //filling list of English elements
 		driver.close();
 		
 		try (
-				FileOutputStream OutPutFile = new FileOutputStream("bing.txt");	
+				FileOutputStream OutPutFile = new FileOutputStream("bing.txt");	//file for log
 				DataOutputStream of = new DataOutputStream(OutPutFile);	){
 		
-					for (int i=0; i<10; i++) {
+					for (int i=0; i<10; i++) {	//select different locales and check translation on each of them
 						locale = changeLocale(i);
 						startBrowser(locale);
 						getDataToList(LocalizedElements);
 						driver.close();
-						compairing(of);
+						compairing(of);	//out the result to console and log file 
 					}
 		}
 	}
 	
-	private static void compairing(DataOutputStream of) throws IOException {
+	private static void compairing(DataOutputStream of) throws IOException {	// if localized string is equal to English it marked with "!!!"
 		System.out.println("----- Locale is " + locale + "-----");
-		of.writeChars("----- Locale is " + locale + "-----");	
+		of.writeChars("----- Locale is " + locale + "-----");
+		of.writeUTF("\r\n");
 		
-		AbstractMap<String, String> locList = new TreeMap<String, String>();
+		AbstractMap<String, String> locList = new TreeMap<String, String>();	// This map for getting data according to English data list 
 		
 		for (trans t : LocalizedElements) {
 			locList.put(t.getId(), t.getData());
 		}
 		
-		for (trans element: EnglishElements) {
+		for (trans element: EnglishElements) {	// Mark string which is equal to English
 						
 			if (element.getData().compareTo(locList.get(element.getId()).toString()) == 0)
 				{
-				System.out.print("!!! ");
-				of.writeChars("!!! ");
+					System.out.print("!!! ");
+					of.writeChars("!!! ");
 				}
 			
 			System.out.println(locList.get(element.getId()));
-			of.writeUTF(locList.get(element.getId()));
+			of.writeBytes(locList.get(element.getId()));
 			of.writeUTF("\r\n");
 			
 		}
 		
 	}
 
-	public static void startBrowser(String locale) {
+	public static void startBrowser(String locale) {	// start browser with necessary locale
 				
 		FirefoxProfile profile = new FirefoxProfile();
 		profile.setPreference("intl.accept_languages", locale);
@@ -75,7 +76,7 @@ public class second {
 		driver.get(baseUrl);
 	}
 		
-	static String changeLocale(int i) {
+	static String changeLocale(int i) {	//just Enum for list of available locale
 					
 			switch (i) {
 				case 0: return "nl";
@@ -92,20 +93,21 @@ public class second {
 			}
 		}
 	
-	static void getDataToList(List<trans> Elements) {
+	static void getDataToList(List<trans> Elements) {	//getting data for current locale 
 		
 		List<WebElement> baseList = driver.findElements(By.xpath(".//*/a"));
 				
 		for (WebElement link : baseList) {
-			if (link.isDisplayed() == true & !(link.getText().isEmpty()) ) {
-					Elements.add(new trans(link.getAttribute("h"), link.getText()));
-				}
+			if (link.isDisplayed() == true & !(link.getText().isEmpty()) ) 
+			{
+				Elements.add(new trans(link.getAttribute("h"), link.getText()));
+			}
 		}
 	}
 
 }
 
-class trans {
+class trans {	//support class to keep the connection between id and data
 	String id;
 	String data;
 	
