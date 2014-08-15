@@ -32,7 +32,7 @@ public class Bing {
 	static String BaseUrl = "http://www.bing.com/";
 	static List<trans> EnglishElements = new ArrayList<trans>();	//list of English elements for compare with
 	static List<trans> LocalizedElements = new ArrayList<trans>();	//list for temporary keeping current locale's elements 
-	static Document Doc;
+	static Document Doc;	//for xml
 	static Element RootElement;
 	
 	
@@ -48,9 +48,9 @@ public class Bing {
 			
 			try {	DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();	//file for xml
 					DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-			 		Doc = docBuilder.newDocument();
+			 		Doc = docBuilder.newDocument();	// Xml structure document
 			 		
-			 		RootElement = Doc.createElement("HomePage");
+			 		RootElement = Doc.createElement("HomePage");	
 					Doc.appendChild(RootElement);
 				
 						for (int i=0; i<10; i++) {	//select different locales and check translation on each of them
@@ -144,7 +144,7 @@ public class Bing {
 
 	static void makeXmlData() {	//add data to doc for xml
 								
-					Element page = Doc.createElement(Locale);
+					Element page = Doc.createElement(Locale);	// use current locale as element
 					RootElement.appendChild(page);
 					
 					String attribute;
@@ -152,10 +152,10 @@ public class Bing {
 					for (trans y: LocalizedElements) {
 						
 						attribute = y.getId();
-						attribute = attribute.replace(',', '.');
+						attribute = attribute.replace(',', '.');	//replace not allowed in xml symbols
 						attribute = attribute.replace('=', '.');
 						
-						page.setAttribute(attribute, y.getData());
+						page.setAttribute(attribute, y.getData());	// add each translatable string as parameter of locale
 						
 					}
 				
